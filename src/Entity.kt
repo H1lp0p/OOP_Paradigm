@@ -1,5 +1,8 @@
+import java.util.UUID
+
 interface Entity{
-    abstract fun tickUpdate()
-    abstract fun getInfo(): Map<Any, Any>
-    abstract fun _getAllInfo(): Map<Any, Any>
+    fun tickUpdate()
+    fun getInfo(): Map<Any, Any>
+    fun _getAllInfo(): Map<Any, Any>
+    val id : UUID
 }

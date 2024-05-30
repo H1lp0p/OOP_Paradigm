@@ -5,7 +5,8 @@ class Bear(cage : ICage? = null) : Animal(AnimalTypes.BEAR, cage){
     override var sound: String = "RRRRRROAR!"
     override var moveBorder: Int = IntRange(1, 10).random()
     override val typesOfFoodToEat: List<TypesOfFood> =
-        listOf(TypesOfFood.CHILDREN, TypesOfFood.PEDIGRY)
+        listOf(TypesOfFood.STARDUST, TypesOfFood.BURGAR)
+
 
     override fun voice() {
         println(this.sound)

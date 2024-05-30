@@ -1,3 +1,5 @@
+import java.util.*
+
 interface ICage : Entity {
     fun hasSpace() : Boolean
     fun add(animal : Animal)
@@ -7,7 +9,7 @@ interface ICage : Entity {
     fun delete(name: String)
     fun find(name: String) : Animal?
     fun feed(animal : Animal, food: Food) : Boolean
-    fun getId() : Int
     fun getType() : AnimalTypes
     fun foodState() : Food
+    fun askForTypeOfFood() : TypesOfFood
 }

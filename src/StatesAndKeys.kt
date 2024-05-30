@@ -35,11 +35,8 @@ enum class AnimalTypes{
 }
 
 enum class TypesOfFood{
-    PEDIGRY,
     KITTYCAT,
     BURGAR,
-    CHILDREN,
-    STARDUST,
-    MANGA
+    STARDUST
 }
 

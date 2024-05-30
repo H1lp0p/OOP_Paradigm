@@ -103,7 +103,8 @@ suspend fun directorLoop(direct: Director){
                     'c', 'C' ->{
                         print("Set size of cage: ")
                         val sizeInput = readln().toInt()
-                        direct.add(Cage(sizeInput, direct.getZoo()!!.cages.size))
+                        direct.add(Cage(sizeInput,
+                            "cage_${direct.getZoo()!!.entityList.count{it is Cage} + 1}"))
                         println("Cage added")
                     }
                 }
@@ -122,9 +123,9 @@ suspend fun directorLoop(direct: Director){
             "set"->{
                 print("Type name: ")
                 val name = readln()
-                val Entity = direct.find(name)
+                val entity = direct.getEntity(direct.find(name))
 
-                when(Entity){
+                when(entity){
                     is Animal -> {
                         print("Type new max hunger, new hungerBorder, hunger and state from ${AnimalStates.entries}\n->")
                         val input = readln().split(regex = Regex("(\\s|,\\s?)"))
@@ -136,7 +137,7 @@ suspend fun directorLoop(direct: Director){
                             val state = if (input[3] != "") AnimalStates.entries.filter { it.toString() == input[3] }[0]
                             else AnimalStates.WELLFED
 
-                            Entity.change(mxHunger, hungerBorder, hunger, state)
+                            entity.change(mxHunger, hungerBorder, hunger, state)
                         }
                         catch(e: Exception){
                             println("Mistake in some of options. Please, try again")
@@ -150,7 +151,7 @@ suspend fun directorLoop(direct: Director){
                             val gender = if (input[1] != "") Gender.entries.filter { it.toString() == input[3] }[0]
                             else Gender.HELICOPTER
                             val job = input[2]
-                            Entity.change(newName, gender, job)
+                            entity.change(newName, gender, job)
                         }
                         catch(e: Exception){
                             println("Mistake in some of options. Please, try again")
@@ -163,7 +164,7 @@ suspend fun directorLoop(direct: Director){
                             val newName = input[0]
                             val gender = if (input[1] != "") Gender.entries.filter { it.toString() == input[3] }[0]
                             else Gender.HELICOPTER
-                            Entity.change(newName, gender)
+                            entity.change(newName, gender)
                         }
                         catch(e: Exception){
                             println("Mistake in some of options. Please, try again")
@@ -177,7 +178,7 @@ suspend fun directorLoop(direct: Director){
             "voice" ->{
                 print("Type name: ")
                 val name = readln()
-                val animal = direct.find(name)
+                val animal = direct.getEntity(direct.find(name))
                 if (animal is Animal){
                     animal.voice()
                 }
@@ -242,9 +243,3 @@ fun main() = runBlocking{
     loop.await()
     playing.await()
 }
-
-//TODO: add diffrent types of food and check them for diffrent animals (at least two types for one animal type)
-//TODO: add LINQ and DB to Zoo class
-//TODO: add Guid to all elemnts and retype acess to them by this Guid
-//TODO: refactor code for jeneric use
-//TODO: add comparators somewhere (DB???)

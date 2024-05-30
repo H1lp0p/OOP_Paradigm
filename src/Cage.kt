@@ -1,21 +1,23 @@
+import java.util.UUID
 import kotlin.math.max
 import kotlin.math.min
 
-class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
+class Cage(
+    var size : Int = 5,
+    val name : String,
+    override val id : UUID = UUID.randomUUID()) : ICage{
+
     private var animals : MutableList<Animal> = mutableListOf()
     private var openSpace : MutableList<Animal> = mutableListOf()
     private var safeSpace : MutableList<Animal> = mutableListOf()
 
-    private var food : Food = Food(TypesOfFood.entries.random(), 0)
+    private var food : Food = Food(TypesOfFood.entries.random(), 50)
 
     private val weights : Map<TypesOfFood, Int> =
         mapOf(
-            TypesOfFood.PEDIGRY to 100 ,
             TypesOfFood.KITTYCAT to 200 ,
             TypesOfFood.BURGAR to 50 ,
-            TypesOfFood.CHILDREN to 10 ,
-            TypesOfFood.STARDUST to 1000 ,
-            TypesOfFood.MANGA to 170711
+            TypesOfFood.STARDUST to 1000
         )
 
     override fun hasSpace() : Boolean{
@@ -27,6 +29,9 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
             if (this.animals.size == 0 || animal.getType() == this.animals[0].getType()){
                 this.animals.add(animal)
                 this.safeSpace.add(animal)
+                if (this.animals.size == 1){
+                    this.food = Food(animal.checkFoodToEat().random(), 50)
+                }
             }
         }
     }
@@ -51,7 +56,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
     }
 
     override fun fill(food : Food){
-        if (this.food > 0){
+        if (this.food > 0 && this.food == food){
             val weightToAdd = weights[this.food.type]!! - this.food.weight
             this.food += weightToAdd
         }
@@ -90,12 +95,18 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         return false
     }
 
-    override fun getId() : Int{
-        return this.id
-    }
-
     override fun getType() : AnimalTypes{
         return if (this.animals.size > 0) animals[0].getType() else AnimalTypes.NONE
+    }
+
+    override fun askForTypeOfFood() : TypesOfFood{
+        if (this.animals.size > 0){
+            if (this.food > 0){
+                return this.food.type
+            }
+            return this.animals[0].checkFoodToEat().random()
+        }
+        return TypesOfFood.entries.random()
     }
 
     override fun foodState() : Food{
@@ -117,7 +128,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
 
     override fun getInfo(): Map<Any, Any> {
         val res : MutableMap<Any, Any> = mutableMapOf()
-        res["id"] = this.id
+        res["name"] = this.name
         res["animals"] = this.animals.map { it.getInfo() }
         res["food"] = this.food.getInfo()
 
@@ -126,7 +137,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
 
     override fun _getAllInfo(): Map<Any, Any> {
         val res : MutableMap<Any, Any> = mutableMapOf()
-        res["id"] = this.id
+        res["name"] = this.name
         res["animals"] = this.animals.map { it._getAllInfo() }
         res["food"] = this.food.getInfo()
 

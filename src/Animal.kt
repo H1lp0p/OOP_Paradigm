@@ -1,9 +1,12 @@
+import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
 abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) : Entity{
     var name: String = type.toString()
     protected abstract val sound: Any
+
+    override val id : UUID = UUID.randomUUID()
 
     protected abstract var hungerBorder: Int
     protected abstract var maxHunger: Int
@@ -17,6 +20,10 @@ abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) 
     var state: AnimalStates = AnimalStates.WELLFED
 
     abstract fun voice()
+
+    fun checkFoodToEat() : List<TypesOfFood>{
+        return this.typesOfFoodToEat
+    }
 
     fun eat(food : Food) : Boolean{
         if (this.state == AnimalStates.HUNGRY && food.type in this.typesOfFoodToEat){

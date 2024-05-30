@@ -1,3 +1,5 @@
+import java.util.*
+
 class Director(private var zoo : Zoo?){
 
     fun setZoo(zoo : Zoo){
@@ -20,9 +22,9 @@ class Director(private var zoo : Zoo?){
 
     fun delete(name: String){
         if (this.zoo != null){
-            val Entity = this.find(name)
-            if (Entity != null){
-                this.zoo!!.delete(Entity)
+            val entity = this.find(name)
+            if (entity != null){
+                this.zoo!!.delete(entity)
             }
             else{
                 println("$name not found")
@@ -38,28 +40,36 @@ class Director(private var zoo : Zoo?){
         return if (this.zoo != null) this.zoo!!.getInfo() else mapOf()
     }
 
-    fun find(name: String) : Entity?{
-        if (this.zoo != null){
-            var animal : Animal? = zoo!!.findAnimal(name)
-            if (animal != null){
-                return animal
-            }
-            for (worker in this.zoo!!.personal){
-                if (worker.name == name){
-                    return worker
-                }
-            }
-            for (visitor in this.zoo!!.visitors){
-                if (visitor.name == name){
-                    return visitor
-                }
-            }
-            for (cage in this.zoo!!.cages){
-                if (cage.getId() == name.toInt()){
-                    return cage
-                }
-            }
+    fun getEntity(id : UUID?) : Entity? {
+        if (id == null) {
+            return null
         }
+        if (this.zoo != null){
+            return this.zoo!!.entityList.find { it.id == id }
+        }
+        return null
+    }
+
+    fun find(name: String) : UUID? {
+       if (this.zoo != null) {
+           return zoo!!.entityList.firstOrNull { it ->
+               when (it) {
+                   is Animal -> {
+                       it.name == name
+                   }
+
+                   is Person -> {
+                       it.name == name
+                   }
+
+                   is Cage -> {
+                       it.name == name
+                   }
+
+                   else -> false
+               }
+           }?.id
+       }
         return null
     }
 }

@@ -1,14 +1,12 @@
+import java.util.*
+
 class Zoo(private var personalCount: Int, private var visitorsCount: Int, private var animalCount: Int = 15) : Entity {
     private val animalTypes = listOf("FOX", "BEAR", "CAPYBARA")
 
-    var cages : MutableList<ICage> = mutableListOf()
-        get() = field
-    var personal: MutableList<Worker> = mutableListOf()
-        get() = field
-    var visitors: MutableList<Visitor> = mutableListOf()
-        get() = field
+    public var entityList : MutableList<Entity> = mutableListOf(this)
 
-    //TODO: all elements in one DB (and use LINQ to acess them)
+    override val id : UUID = UUID.randomUUID()
+        get() = field
 
 
     private var typesCount: MutableMap<String, Int> = mutableMapOf()
@@ -47,23 +45,25 @@ class Zoo(private var personalCount: Int, private var visitorsCount: Int, privat
         }
 
         for (i in IntRange(1, this.visitorsCount)){
-            visitors.add(Visitor("Ivan_$i", Gender.HELICOPTER, this))
+            entityList.add(Visitor("Ivan_$i", Gender.HELICOPTER, this))
         }
 
         for (i in IntRange(1, this.personalCount)){
-            personal.add(Worker("Bob_$i", Gender.MALE, "feeder"))
-            personal.last().addCage(this.cages[i%this.cages.size])
+            val newWorker = Worker("Bob_$i", Gender.MALE, "feeder")
+            newWorker.addCage(this.entityList.filterIsInstance<Cage>().random())
+            entityList.add(newWorker)
         }
     }
 
     private fun findSpaceForAnimal(type: String) : ICage{
-        for (cage in this.cages){
+        for (cage in this.entityList.filter { it is Cage }.map { it as Cage }){
             if (cage.getType().toString() == type && cage.hasSpace()){
                 return cage
             }
         }
-        this.cages.add(Cage(5, this.cages.size))
-        return cages.last()
+        val newCage = Cage(5, "cage_${this.entityList.filterIsInstance<Cage>().size + 1}")
+        this.entityList.add(newCage)
+        return entityList.find { it-> it.id == newCage.id }!! as ICage
     }
 
     fun findAnimal(name: String) : Animal?{
@@ -75,7 +75,7 @@ class Zoo(private var personalCount: Int, private var visitorsCount: Int, privat
     }
 
     private fun findICageByAnimal(name: String) : ICage?{
-        for (cage in this.cages){
+        for (cage in this.entityList.filterIsInstance<Cage>()){
             if (cage.find(name) != null){
                 return cage
             }
@@ -84,18 +84,14 @@ class Zoo(private var personalCount: Int, private var visitorsCount: Int, privat
     }
 
     fun getVisibleAnimals() : List<Animal>{
-        var res = mutableListOf<Animal>()
-        for (cage in this.cages){
-            res.addAll(cage.openSpace())
-        }
+        val res = entityList.filterIsInstance<Cage>().map { (it as Cage).openSpace() }.flatten()
         return res
     }
 
     fun add(newEntity : Entity) {
         when (newEntity) {
             is ICage -> {
-                this.cages.add(newEntity)
-                this.personal.random().addCage(newEntity)
+                this.entityList.filterIsInstance<Worker>().random().addCage(newEntity)
             }
 
             is Animal -> {
@@ -120,72 +116,48 @@ class Zoo(private var personalCount: Int, private var visitorsCount: Int, privat
             }
 
             is Worker -> {
-                this.personal.add(newEntity)
-                personal.last().addCage(this.cages.random())
+                newEntity.addCage(this.entityList.filterIsInstance<Cage>().random())
                 this.personalCount++
             }
 
             is Visitor -> {
-                this.visitors.add(newEntity)
                 this.animalCount++
             }
         }
+        this.entityList.add(newEntity)
     }
 
-    fun delete(entity : Entity){
+    fun delete(id : UUID){
         var deleted = false
-        when (entity){
-            is Animal -> {
-                val cage = this.findICageByAnimal(entity.name)
-                if (cage != null){
-                    cage.delete(entity.name)
-                    deleted = true
-                }
-                else{
-                    deleted = false
-                }
-            }
-            is Worker -> {
-                deleted = this.personal.remove(entity)
-            }
-            is Visitor -> {
-                deleted = this.visitors.remove(entity)
-            }
-            is ICage -> {
-                this.cages.remove(entity)
-                for (worker in personal){
-                    worker.removeCage(entity)
-                }
-            }
-        }
-        if (deleted) println("${entity} deleted")
+
+        deleted = this.entityList.removeIf { it -> it.id == id }
+
+
+        if (deleted) println("entity with UUID ${id} deleted")
     }
 
     override fun getInfo(): Map<Any, Any> {
-        return mapOf("cages" to cages.map{ el -> el.getInfo() }, "personal" to personal.size, "visitors" to visitors.size)
+        return mapOf(
+            "cages" to entityList.filterIsInstance<Cage>().map{ el -> el.getInfo() },
+            "personal" to this.entityList.count { it is Worker },
+            "visitors" to this.entityList.count { it is Visitor })
     }
 
     override fun _getAllInfo(): Map<Any, Any> {
         val res : MutableMap<Any, Any> = mutableMapOf()
 
-        res["Cages"] = cages.map { el-> el._getAllInfo() }
-        res["personal"] = personal.map { el-> el._getAllInfo() }
-        res["visitors"] = visitors.map { el-> el._getAllInfo() }
+        res["Cages"] = entityList.filterIsInstance<Cage>().map { el-> el._getAllInfo() }
+        res["personal"] = entityList.filterIsInstance<Worker>().map { el-> el._getAllInfo() }
+        res["visitors"] = entityList.filterIsInstance<Visitor>().map { el-> el._getAllInfo() }
 
         return res
     }
 
     override fun tickUpdate() {
-
-        for (cage in this.cages){
-            cage.tickUpdate()
-        }
-        for (personal in this.personal){
-            personal.tickUpdate()
-        }
-
-        for (visitor in this.visitors){
-            visitor.tickUpdate()
+        for (entity in this.entityList){
+            if (entity !is Zoo) {
+                entity.tickUpdate()
+            }
         }
     }
 }

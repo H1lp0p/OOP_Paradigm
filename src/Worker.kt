@@ -1,10 +1,11 @@
 class Worker(name: String, gender: Gender, private var job: String) : Person(name, gender){
 
     var cagesToFeed : MutableList<ICage> = mutableListOf()
-    private var bag : Food = Food(TypesOfFood.entries.random())
+    var bag : Food = Food(TypesOfFood.entries.random())
 
     override fun tickUpdate() {
         this.feed()
+        bag = Food(TypesOfFood.entries.random())
     }
 
     override fun getInfo(): Map<Any, Any> {
@@ -28,9 +29,16 @@ class Worker(name: String, gender: Gender, private var job: String) : Person(nam
 
     private fun feed(){
         for (cage in cagesToFeed){
-            if (cage.foodState() <= 1) {
-                cage.fill(bag)
-                return
+            if (cage.foodState() <= 10 && cage.foodState() == this.bag) {
+                cage.fill(this.bag)
+
+                val newType = this.cagesToFeed.filter {
+                    it.askForTypeOfFood() != this.bag.type
+                }.map {
+                    it.askForTypeOfFood()
+                }.firstOrNull()
+                this.bag = Food(newType ?: TypesOfFood.entries.random())
+                    return
             }
         }
     }

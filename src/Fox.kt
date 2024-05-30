@@ -5,7 +5,8 @@ class Fox(cage : ICage? = null) : Animal(AnimalTypes.FOX, cage){
     override var sound: List<String> = listOf("Hah", "Heh")
     override val moveBorder: Int = IntRange(1, 5).random()
     override val typesOfFoodToEat: List<TypesOfFood> =
-        listOf(TypesOfFood.MANGA, TypesOfFood.KITTYCAT)
+        listOf(TypesOfFood.KITTYCAT, TypesOfFood.STARDUST)
+
 
     override fun voice() {
         println(this.sound.random())

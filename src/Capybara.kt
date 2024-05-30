@@ -7,6 +7,7 @@ class Capybara(cage : ICage? = null) : Animal(AnimalTypes.CAPYBARA, cage){
     override val typesOfFoodToEat: List<TypesOfFood> =
         listOf(TypesOfFood.BURGAR, TypesOfFood.STARDUST)
 
+
     override fun voice() {
         println(this.sound)
     }
