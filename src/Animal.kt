@@ -1,4 +1,5 @@
 import kotlin.math.max
+import kotlin.math.min
 
 abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) : Entity{
     var name: String = type.toString()
@@ -8,6 +9,8 @@ abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) 
     protected abstract var maxHunger: Int
     protected abstract var hunger: Int
 
+    protected abstract val typesOfFoodToEat: List<TypesOfFood>
+
     var moveCount: Int = 0
     protected abstract val moveBorder: Int
 
@@ -15,9 +18,9 @@ abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) 
 
     abstract fun voice()
 
-    fun eat(food : Int) : Boolean{
-        if (this.state == AnimalStates.HUNGRY){
-            this.hunger += food
+    fun eat(food : Food) : Boolean{
+        if (this.state == AnimalStates.HUNGRY && food.type in this.typesOfFoodToEat){
+            this.hunger += min(food.weight, 1)
             this.state = if (this.hunger >= this.maxHunger) AnimalStates.WELLFED else AnimalStates.HUNGRY
             return true
         }
@@ -65,12 +68,13 @@ abstract class Animal(private val type: AnimalTypes, private var cage : ICage?) 
     }
 
     override fun getInfo(): Map<Any, Any> {
-        return mapOf("name" to this.name, AnimalKeys.TYPE to this.type, AnimalKeys.STATE to this.state, AnimalKeys.HUNGER to this.hunger)
+        return mapOf("name" to this.name, AnimalKeys.TYPE to this.type, AnimalKeys.STATE to this.state,
+            AnimalKeys.HUNGER to this.hunger, "types of food" to this.typesOfFoodToEat)
     }
 
     override fun _getAllInfo(): Map<Any, Any> {
         return mapOf("name" to this.name, AnimalKeys.TYPE to this.type, AnimalKeys.STATE to this.state,
             AnimalKeys.HUNGER to this.hunger, AnimalKeys.HUNGERBORDER to this.hungerBorder,
-            AnimalKeys.SOUND to this.sound)
+            AnimalKeys.SOUND to this.sound, "types of food" to this.typesOfFoodToEat)
     }
 }

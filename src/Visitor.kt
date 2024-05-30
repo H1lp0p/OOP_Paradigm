@@ -1,7 +1,7 @@
 class Visitor(name: String, gender: Gender, private val zoo: Zoo) : Person(name, gender){
 
     private var pocket : Int = IntRange(1,100).random()
-    private var food: Int = IntRange(1,10).random()
+    private var food: Food = Food(TypesOfFood.entries.random(), (1..10).random())
 
     override fun tickUpdate(){
         this.watchForAnimals()
@@ -12,8 +12,8 @@ class Visitor(name: String, gender: Gender, private val zoo: Zoo) : Person(name,
             var visibleAnimals = zoo.getVisibleAnimals()
             if (visibleAnimals.isNotEmpty()){
                 val animalToFeed = visibleAnimals.random()
-                val foodToGive = IntRange(1, food).random()
-                val fed = animalToFeed.getCage().feed(animalToFeed, foodToGive);
+                val foodToGive = IntRange(1, food.weight).random()
+                val fed = animalToFeed.getCage().feed(animalToFeed, Food(food.type, foodToGive));
                 if (fed){
                     food-=foodToGive
                     println("!!!$name fed ${animalToFeed.name}")
@@ -28,7 +28,9 @@ class Visitor(name: String, gender: Gender, private val zoo: Zoo) : Person(name,
     }
 
     override fun getInfo(): Map<Any, Any> {
-        return mapOf(PersonKeys.NAME to name, PersonKeys.GENDER to gender, "money" to this.pocket.toString())
+        return mapOf(PersonKeys.NAME to name, PersonKeys.GENDER to gender,
+            "money" to this.pocket.toString(),
+            "food" to this.food.getInfo())
     }
 
     override fun _getAllInfo(): Map<Any, Any> {

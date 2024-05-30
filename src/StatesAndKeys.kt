@@ -34,3 +34,12 @@ enum class AnimalTypes{
     NONE
 }
 
+enum class TypesOfFood{
+    PEDIGRY,
+    KITTYCAT,
+    BURGAR,
+    CHILDREN,
+    STARDUST,
+    MANGA
+}
+

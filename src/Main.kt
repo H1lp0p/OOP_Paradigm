@@ -242,3 +242,9 @@ fun main() = runBlocking{
     loop.await()
     playing.await()
 }
+
+//TODO: add diffrent types of food and check them for diffrent animals (at least two types for one animal type)
+//TODO: add LINQ and DB to Zoo class
+//TODO: add Guid to all elemnts and retype acess to them by this Guid
+//TODO: refactor code for jeneric use
+//TODO: add comparators somewhere (DB???)

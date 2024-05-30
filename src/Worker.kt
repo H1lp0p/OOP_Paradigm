@@ -1,14 +1,15 @@
 class Worker(name: String, gender: Gender, private var job: String) : Person(name, gender){
 
     var cagesToFeed : MutableList<ICage> = mutableListOf()
-    private val bag : Int = IntRange(1,5).random()
+    private var bag : Food = Food(TypesOfFood.entries.random())
 
     override fun tickUpdate() {
         this.feed()
     }
 
     override fun getInfo(): Map<Any, Any> {
-        return mapOf(PersonKeys.NAME to this.name, PersonKeys.GENDER to gender, WorkerKeys.JOB to this.job)
+        return mapOf(PersonKeys.NAME to this.name, PersonKeys.GENDER to gender,
+            WorkerKeys.JOB to this.job, "food" to this.bag.getInfo())
     }
 
     override fun _getAllInfo(): Map<Any, Any> {
@@ -19,6 +20,10 @@ class Worker(name: String, gender: Gender, private var job: String) : Person(nam
         this.job = newJob
         this.name = newName
         this.gender = newGender
+    }
+
+    private fun bagUpdate(){
+        this.bag++
     }
 
     private fun feed(){
@@ -40,3 +45,5 @@ class Worker(name: String, gender: Gender, private var job: String) : Person(nam
         }
     }
 }
+
+//TODO: food and cage (you need to check where to add food and how)

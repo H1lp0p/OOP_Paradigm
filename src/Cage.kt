@@ -1,11 +1,22 @@
 import kotlin.math.max
+import kotlin.math.min
 
 class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
     private var animals : MutableList<Animal> = mutableListOf()
     private var openSpace : MutableList<Animal> = mutableListOf()
     private var safeSpace : MutableList<Animal> = mutableListOf()
 
-    private var food : Int = 0
+    private var food : Food = Food(TypesOfFood.entries.random(), 0)
+
+    private val weights : Map<TypesOfFood, Int> =
+        mapOf(
+            TypesOfFood.PEDIGRY to 100 ,
+            TypesOfFood.KITTYCAT to 200 ,
+            TypesOfFood.BURGAR to 50 ,
+            TypesOfFood.CHILDREN to 10 ,
+            TypesOfFood.STARDUST to 1000 ,
+            TypesOfFood.MANGA to 170711
+        )
 
     override fun hasSpace() : Boolean{
         return this.animals.size < this.size
@@ -39,8 +50,14 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         return this.openSpace
     }
 
-    override fun fill(food : Int){
-        this.food += food
+    override fun fill(food : Food){
+        if (this.food > 0){
+            val weightToAdd = weights[this.food.type]!! - this.food.weight
+            this.food += weightToAdd
+        }
+        else{
+            this.food = Food(food.type, min(food.weight, this.weights[food.type]!!))
+        }
     }
 
     override fun delete(name: String) {
@@ -66,7 +83,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         return null
     }
 
-    override fun feed(animal : Animal, food: Int) : Boolean{
+    override fun feed(animal : Animal, food: Food) : Boolean{
         if (this.animals.contains(animal) && this.isAnimalVisible(animal)){
             return animal.eat(food)
         }
@@ -81,7 +98,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         return if (this.animals.size > 0) animals[0].getType() else AnimalTypes.NONE
     }
 
-    override fun foodState() : Int{
+    override fun foodState() : Food{
         return this.food
     }
 
@@ -91,7 +108,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         }
         for (animal in this.openSpace){
             if (this.food > 0){
-                if (animal.eat(max(1, this.food))){
+                if (animal.eat(this.food)){
                     food -= 1
                 }
             }
@@ -102,7 +119,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         val res : MutableMap<Any, Any> = mutableMapOf()
         res["id"] = this.id
         res["animals"] = this.animals.map { it.getInfo() }
-        res["food"] = this.food
+        res["food"] = this.food.getInfo()
 
         return res
     }
@@ -111,7 +128,7 @@ class Cage(var size : Int = 5, private val id : Int = 0) : ICage{
         val res : MutableMap<Any, Any> = mutableMapOf()
         res["id"] = this.id
         res["animals"] = this.animals.map { it._getAllInfo() }
-        res["food"] = this.food
+        res["food"] = this.food.getInfo()
 
         return res
     }

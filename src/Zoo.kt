@@ -8,6 +8,9 @@ class Zoo(private var personalCount: Int, private var visitorsCount: Int, privat
     var visitors: MutableList<Visitor> = mutableListOf()
         get() = field
 
+    //TODO: all elements in one DB (and use LINQ to acess them)
+
+
     private var typesCount: MutableMap<String, Int> = mutableMapOf()
 
     init {
